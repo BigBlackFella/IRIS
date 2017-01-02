@@ -22,20 +22,25 @@ package com.temenos.interaction.core.resource;
  */
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * This class provides an abstraction from the underlying mechanism used to load config files  
  *
  */
-public class ConfigLoader { 
-	private String irisConfigDirPath;
+public class ConfigLoader {
+	private Set<String> irisConfigDirPaths = new LinkedHashSet<>();
 	
 	// Webapp context param defining the location of the unpacked IRIS configuration files
 	public static final String IRIS_CONFIG_DIR_PARAM = "com.temenos.interaction.config.dir";
@@ -43,64 +48,69 @@ public class ConfigLoader {
 	private final static Logger logger = LoggerFactory.getLogger(ConfigLoader.class);	
 		
 	/**
-	 * Overrides the default IRIS configuration location with the path given
+	 * Overrides the default IRIS configuration location with the paths given (separated by comma)
 	 * 
-	 * @param irisConfigDirPath The IRIS configuration location
+	 * @param irisConfigDirPath The IRIS configuration locations, they are separated by comma
 	 */
 	public void setIrisConfigDirPath(String irisConfigDirPath) {
-		this.irisConfigDirPath = irisConfigDirPath;
+		irisConfigDirPaths.clear();
+		for(String pathString : irisConfigDirPath.split(",")) {
+			Path path = Paths.get(pathString.trim());
+			if(Files.exists(path) && Files.isDirectory(path)) {
+				irisConfigDirPaths.add(path.toString());
+			}
+		}
+		if(irisConfigDirPaths.isEmpty()) {
+			logger.error("None of the given directories exists (" + irisConfigDirPath + ") !");
+		}
 	}	
 
-	/**
-	 * @return The path of the overridden IRIS configuration location
-	 */
-	public String getIrisConfigDirPath() {
-		return irisConfigDirPath;
+	public Set<String> getIrisConfigDirPaths() {
+		return irisConfigDirPaths;
 	}
 
-
-
 	public boolean isExist(String filename) {
-		if(irisConfigDirPath == null) {
+		if(irisConfigDirPaths.isEmpty()) {
 			return getClass().getClassLoader().getResource(filename) != null;
 		} else {
-			File file = formResourceFile(filename);
-			return file != null && file.exists();
+			File file = searchInDirectories(filename);
+			return file != null;
 		}
 	}
 
-	public InputStream load(String filename) throws FileNotFoundException, Exception {
+	public InputStream load(String filename) throws Exception {
 		InputStream is = null;
 		
-		if(irisConfigDirPath == null) {
+		if(irisConfigDirPaths.isEmpty()) {
 			is = getClass().getClassLoader().getResourceAsStream(filename);
 			
 			if(is == null) {
 				logger.error("Unable to load " + filename + " from classpath.");
+				logger.error("There aren`t any Iris configuration directories specified.");
 				throw new Exception("Unable to load " + filename + " from classpath.");
 			}
 		} else {
-			File file = formResourceFile(filename);
+			File file = searchInDirectories(filename);
 			if (file != null) {
-				if(file.exists()) {
-					is = new FileInputStream(file);
-				} else {
-					logger.error("Unable to load " + filename + " from directory " + irisConfigDirPath + " (specified by " 
-							+ IRIS_CONFIG_DIR_PARAM + "system property)");
-					throw new Exception("Unable to load " + filename + " from file system.");
-				}
+				is = new FileInputStream(file);
 			} else {
-				throw new Exception("The IRIS resource config directory specified (" + IRIS_CONFIG_DIR_PARAM + ") does not exist.");
+				throw new Exception("Cannot find or load '" + filename + "'");
 			}
 		}
 		
 		return is;
 	}
-	
-	private File formResourceFile(String filename) {
-		File irisResourceDir = new File(irisConfigDirPath);
-		if (irisResourceDir.exists() && irisResourceDir.isDirectory()) {
-			return new File(irisResourceDir, filename);
+
+	private File searchInDirectories(String filename) {
+		if(irisConfigDirPaths.isEmpty()) {
+			return null;
+		}
+
+		for(String directoryPath : irisConfigDirPaths) {
+			Path filePath = Paths.get(directoryPath, filename);
+			if(Files.exists(filePath) && !Files.isDirectory(filePath)) {
+				return filePath.toFile();
+			}
 		}
 		return null;
 	}

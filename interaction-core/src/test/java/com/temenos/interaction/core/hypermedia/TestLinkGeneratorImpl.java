@@ -504,14 +504,13 @@ public class TestLinkGeneratorImpl {
 
     @Test
     public void testTransitionFieldLabelNotInParams() {
-        Link result = null;
         Map<String, String> uriParameters = new HashMap<String, String>();
         uriParameters.put("test", "{Contact.Email}");
         CollectionResourceState customerState = new CollectionResourceState("customer", "customer", new ArrayList<Action>(), "/customer()", null, null);
         CollectionResourceState contactState = new CollectionResourceState("contact", "contact", new ArrayList<Action>(), "/contact()", null, null);
         Transition transition = new Transition.Builder().method("GET").target(contactState).uriParameters(uriParameters).flags(Transition.FOR_EACH).sourceField("Customer.Name").build();
         customerState.addTransition(transition);
-        OCollection<?> contactColl = OCollections.newBuilder(null).add(createComplexObject("Email", "johnEmailAddr", "Tel", "12345")).add(createComplexObject("Email", "smithEmailAddr", "Tel", "66778")).build();
+        OCollection<?> contactColl = OCollections.newBuilder(null).add(createComplexObject("Email", "johnEmailAddr", "Tel", "12345")).add(createComplexObject("Email", "smithEmailAddr", "Tel", "66778")).add(createComplexObject("Email", "peterEmailAddr", "Tel", "24680")).build();
 
         OCollection<?> customerColl = OCollections.newBuilder(null).add(createComplexObject("Name", "Paul")).add(createComplexObject("Name", "Andrew")).add(createComplexObject("Name", "Jon")).build();
 
@@ -531,24 +530,21 @@ public class TestLinkGeneratorImpl {
         LinkGenerator linkGenerator = new LinkGeneratorImpl(engine, t, null);
         Collection<Link> links = linkGenerator.createLink(null, null, entity);
 
-        assertEquals(6, links.size());
+        assertEquals(3, links.size());
 
-        sortLinkCollection((ArrayList<Link>) links);
-        Iterator<Link> iterator = links.iterator();
+        ArrayList<Link> genertedLinks = (ArrayList<Link>) links;
+        assertEquals("/baseuri/contact()?test=johnEmailAddr", genertedLinks.get(0).getHref());
+        assertEquals("collection", genertedLinks.get(0).getRel());
+        assertEquals("customer_Customer(0).Name", genertedLinks.get(0).getSourceField());
+        
+        assertEquals("/baseuri/contact()?test=smithEmailAddr", genertedLinks.get(1).getHref());
+        assertEquals("collection", genertedLinks.get(1).getRel());
+        assertEquals("customer_Customer(1).Name", genertedLinks.get(1).getSourceField());
+        
+        assertEquals("/baseuri/contact()?test=peterEmailAddr", genertedLinks.get(2).getHref());
+        assertEquals("collection", genertedLinks.get(2).getRel());
+        assertEquals("customer_Customer(2).Name", genertedLinks.get(2).getSourceField());
 
-        for (int i = 0; i < 3; i++) {
-            result = iterator.next();
-            assertEquals("/baseuri/contact()?test=johnEmailAddr", result.getHref());
-            assertEquals("collection", result.getRel());
-            assertEquals("customer_Customer(" + i + ").Name", result.getSourceField());
-        }
-
-        for (int i = 0; i < 3; i++) {
-            result = iterator.next();
-            assertEquals("/baseuri/contact()?test=smithEmailAddr", result.getHref());
-            assertEquals("collection", result.getRel());
-            assertEquals("customer_Customer(" + i + ").Name", result.getSourceField());
-        }
     }
 
     private OComplexObject createComplexObject(String... values) {

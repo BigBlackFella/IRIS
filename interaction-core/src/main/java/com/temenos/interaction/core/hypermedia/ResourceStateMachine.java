@@ -810,7 +810,7 @@ public class ResourceStateMachine {
 		// add link to GET 'self'
 		if (selfTransition == null)
 			selfTransition = state.getSelfTransition();
-		LinkGenerator selfLinkGenerator = new LinkGeneratorImpl(this, selfTransition, null);
+		LinkGenerator selfLinkGenerator = new LinkGeneratorImpl(this, selfTransition, ctx);
 		links.addAll(selfLinkGenerator.createLink(resourceProperties, ctx.getQueryParameters(), entity));
 
 		/*

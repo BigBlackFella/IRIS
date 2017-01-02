@@ -120,7 +120,6 @@ public class LinkToFieldAssociationImpl implements LinkToFieldAssociation {
         String parentTargetFieldName = getParentNameOfCollectionValue(targetFieldName);
 
         boolean hasSameParent = false;
-        int numOfChildren = 0;
         String parentResolvedName = new String();        
         if (transitionCollectionParams.size() > 0) {
             String firstCollectionParam = transitionCollectionParams.get(0);
@@ -128,11 +127,11 @@ public class LinkToFieldAssociationImpl implements LinkToFieldAssociation {
             hasSameParent = StringUtils.equals(getParentNameOfCollectionValue(firstCollectionParam), parentTargetFieldName);
             if(!hasSameParent)
             {
-                numOfChildren = getNumberOfMultivalueChildren();
                 parentResolvedName = getParentOfMultivalueChildren();
             }
         }
-
+        
+        int targetFieldIndex = 0;
         for (String targetField : targetFields) // Generate one or more map of properties for each target field
         {
             List<String> resolvedDynamicResourceFieldNames = getDynamicResourceResolvedFieldName(transition.getTarget(), targetField);
@@ -146,12 +145,11 @@ public class LinkToFieldAssociationImpl implements LinkToFieldAssociation {
                 LinkProperties linkProps = createLinkProperties(targetField, resolvedDynamicResourceFieldNames, childParamNames, parentResolvedTargetFieldName);
                 transitionPropertiesList.add(linkProps);
             } else { 
-                // Create multiple properties maps per target. Depends on the number of children in the entity in transition properties
-                for (int i = 0; i <= numOfChildren; i++) {
-                    String childParentResolvedParamNewIndex = parentResolvedName + "(" + i + ")";
+                // Create one properties maps per target.
+                    String childParentResolvedParamNewIndex = parentResolvedName + "(" + targetFieldIndex + ")";
                     LinkProperties linkProps = createLinkProperties(targetField, resolvedDynamicResourceFieldNames, childParamNames, childParentResolvedParamNewIndex);
                     transitionPropertiesList.add(linkProps);
-                }
+                    targetFieldIndex ++;
             }
         }
     }

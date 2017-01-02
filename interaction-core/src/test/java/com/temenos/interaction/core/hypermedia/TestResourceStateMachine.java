@@ -2058,7 +2058,7 @@ public class TestResourceStateMachine {
 
         });
         assertEquals("Airport.airport>GET>Airport.airport", sortedLinks.get(0).getId());
-        assertEquals("/baseuri/Airports('123')", sortedLinks.get(0).getHref());
+        assertEquals("/baseuri/Airports('123')?email=name%40test.com", sortedLinks.get(0).getHref());
         assertEquals("Airport.airport>GET>Operational.operational", sortedLinks.get(1).getId());
         assertEquals("/baseuri/FlightStats?email=name%40test.com&apikey=Some+literal+value", sortedLinks.get(1).getHref());
     }

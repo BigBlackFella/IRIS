@@ -23,6 +23,10 @@ package com.temenos.interaction.springdsl;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -395,44 +399,48 @@ public class SpringDSLResourceStateProvider implements ResourceStateProvider, Dy
 		private ApplicationContext createApplicationContext(String beanXml) {
 			ApplicationContext result = null;
 
-			String irisResourceDirPath = configLoader.getIrisConfigDirPath();
-			
-			if(irisResourceDirPath == null) {
+			if(configLoader.getIrisConfigDirPaths().isEmpty()) {
 				// Try and load the resource from the classpath
 				String description = "classpath:" + beanXml;
 				attempts.add(description);
 				result = new ClassPathXmlApplicationContext(new String[] {beanXml});
-				if ( result != null ) foundFile = description;
+                foundFile = description;
 			} else {
-				// Try and load the resource from the file system as a resource directory has been specified
-				File irisResourceDir = new File(irisResourceDirPath);
-
-				if(irisResourceDir.exists() && irisResourceDir.isDirectory()) {
-					File file = new File(irisResourceDir, beanXml);
-					
-					
-					String path = "";
-                    try {
-                        path = file.toURL().toString();
-                    } catch (MalformedURLException e) {
-                        logger.error("Failed to load IRIS PRD file: " + file.getAbsolutePath(), e); 
+				// Try and load the resource from the file system as a resource directories has been specified
+				for(String directoryPath : configLoader.getIrisConfigDirPaths()) {
+					Path filePath = Paths.get(directoryPath, beanXml);
+					result = createApplicationContext(new File(filePath.toString()));
+					if (result != null) {
+                        break;
                     }
-                    
-					attempts.add(path);
-
-					if(file.exists()) {
-						// Only attempt to create an application context if the file exists
-						foundFile = path;
-						result = new FileSystemXmlApplicationContext( new String[] { path });
-					}
-				} else {
-					logger.error("Invalid IRIS resource directory path: " + irisResourceDir.getAbsolutePath());
 				}
 			}
-
 			return result;
 		}
-	}
+
+        private ApplicationContext createApplicationContext(File file) {
+		    URL fileURL = resolveFileURL(file);
+		    if (fileURL == null) {
+		        return null;
+            }
+            attempts.add(fileURL.toString());
+            if (file.exists()) {
+                foundFile = fileURL.toString();
+                return new FileSystemXmlApplicationContext(new String[] { fileURL.toString() });
+            }
+            return null;
+        }
+
+		private URL resolveFileURL(File file) {
+            try {
+                return file.toURI().toURL();
+            } catch (MalformedURLException e) {
+                logger.error("Failed to resolve URL for file: " + file.getAbsolutePath(), e);
+                return null;
+            }
+        }
+
+    }
 
 
     @Override
@@ -471,4 +479,5 @@ public class SpringDSLResourceStateProvider implements ResourceStateProvider, Dy
         
         return resourceStateId;
     }
+
 }

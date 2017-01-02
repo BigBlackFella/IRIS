@@ -24,9 +24,7 @@ package com.temenos.interaction.springdsl;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -64,29 +62,26 @@ public class SpringDSLPropertiesFactoryBean extends PropertiesFactoryBean {
 	@Override
 	public void setLocations(Resource[] locations) {
 		List<Resource> tmpLocations = new ArrayList<Resource>();
+		Map<String, Boolean> fileNames = new HashMap<String, Boolean>();
 		tmpLocations.addAll(Arrays.asList(locations));
-		
-		String irisResourceDirPath = configLoader.getIrisConfigDirPath();
-		
-		if(irisResourceDirPath != null) {
-			// Try and load the properties from the file system as a resource directory has been specified
-			File irisResourceDir = new File(irisResourceDirPath);
-			
-			if(irisResourceDir.exists() && irisResourceDir.isDirectory()) {
-				File[] files = irisResourceDir.listFiles(new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						return name.matches(filenamePattern);
-					}
-				});
-				
-				for(File file: files) {
-					// Create a resource for a current file and add it to the collection of properties resources
+
+		for(String pathToDirectory : configLoader.getIrisConfigDirPaths()) {
+			File irisResourceDir = new File(pathToDirectory);
+			File[] files = irisResourceDir.listFiles(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.matches(filenamePattern);
+				}
+			});
+			for(File file: files) {
+				// Create a resource for a current file and add it to the collection of properties resources
+				if(!fileNames.containsKey(file.getName())) {
+					fileNames.put(file.getName(),true);
 					tmpLocations.add(new FileSystemResource(file));
 				}
-			}		
+			}
 		}
-		
-		super.setLocations(tmpLocations.toArray(new Resource[0]));		
+
+		super.setLocations(tmpLocations.toArray(new Resource[0]));
 	}
 }

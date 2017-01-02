@@ -129,7 +129,7 @@ public class TestLinkToFieldAssociation {
         Map<String, Object> transitionPropertiesMap = createTransitionPropertiesMap(new String[] { "AB(0).CD", "value1", "AB(1).CD", "value2", "ZZ(0).XX", "value1", "ZZ(1).XX", "value2" });
         LinkToFieldAssociation linkToFieldAssociation = new LinkToFieldAssociationImpl(createTransition("AB.CD", false, null, new String[] { "filter", "id={ZZ.XX}" }), transitionPropertiesMap);
         List<LinkProperties> transitionPropsList = linkToFieldAssociation.getProperties();
-        assertEquals(4, transitionPropsList.size());
+        assertEquals(2, transitionPropsList.size());
         for (LinkProperties linkTransitionProps : transitionPropsList) {
             String fullyQualifiedTargetField = linkTransitionProps.getTargetFieldFullyQualifiedName();
             assertTrue(StringUtils.equals("AB(0).CD", fullyQualifiedTargetField) || StringUtils.equals("AB(1).CD", fullyQualifiedTargetField));
