@@ -21,6 +21,8 @@ package com.temenos.useragent.generic.internal;
  * #L%
  */
 
+import java.io.InputStream;
+
 import com.temenos.useragent.generic.PayloadHandler;
 
 /**
@@ -66,7 +68,7 @@ public class PayloadHandlerFactory<T extends PayloadHandler> {
 	 * @param payload
 	 * @return payload handler
 	 */
-	public PayloadHandler createHandler(String payload) {
+	public PayloadHandler createHandler(InputStream payload) {
 		try {
 			PayloadHandler handler = handlerClass.newInstance();
 			handler.setPayload(payload);

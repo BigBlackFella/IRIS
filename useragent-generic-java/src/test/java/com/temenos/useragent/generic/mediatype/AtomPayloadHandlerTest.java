@@ -40,15 +40,15 @@ public class AtomPayloadHandlerTest {
 
 	@Test
 	public void testIsCollectionForTrue() throws Exception {
-		handler.setPayload(IOUtils.toString(AtomPayloadHandler.class
-				.getResourceAsStream("/atom_feed_with_single_entry.txt")));
+		handler.setPayload(AtomPayloadHandler.class
+				.getResourceAsStream("/atom_feed_with_single_entry.txt"));
 		assertTrue(handler.isCollection());
 	}
 
 	@Test
 	public void testIsCollectionForFalse() throws Exception {
-		handler.setPayload(IOUtils.toString(AtomPayloadHandler.class
-				.getResourceAsStream("/atom_entry_with_xml_content.txt")));
+		handler.setPayload(AtomPayloadHandler.class
+				.getResourceAsStream("/atom_entry_with_xml_content.txt"));
 		assertFalse(handler.isCollection());
 	}
 
@@ -66,7 +66,7 @@ public class AtomPayloadHandlerTest {
 	public void testSetPayloadForInvalidXmlContent() {
 		try {
 			handler
-					.setPayload("<some><valid><xml><but><invalid><atom-xml>foo</atom-xml></invalid></but></xml></valid></some>");
+					.setPayload(IOUtils.toInputStream("<some><valid><xml><but><invalid><atom-xml>foo</atom-xml></invalid></but></xml></valid></some>"));
 			fail("Should have thrown IllegalArgumentException");
 		} catch (Exception e) {
 			assertTrue(e instanceof IllegalArgumentException);
@@ -76,7 +76,7 @@ public class AtomPayloadHandlerTest {
 	@Test
 	public void testSetPayloadForInvalidTextContent() {
 		try {
-			handler.setPayload("foo");
+			handler.setPayload(IOUtils.toInputStream("foo"));
 			fail("Should have thrown IllegalArgumentException");
 		} catch (Exception e) {
 			assertTrue(e instanceof IllegalArgumentException);
@@ -85,15 +85,15 @@ public class AtomPayloadHandlerTest {
 
 	@Test
 	public void testSetPayloadForValidFeed() throws Exception {
-		handler.setPayload(IOUtils.toString(AtomPayloadHandler.class
-				.getResourceAsStream("/atom_feed_with_single_entry.txt")));
+		handler.setPayload(AtomPayloadHandler.class
+				.getResourceAsStream("/atom_feed_with_single_entry.txt"));
 		assertTrue(handler.isCollection());
 	}
 
 	@Test
 	public void testGetLinksForCollection() throws Exception {
-		handler.setPayload(IOUtils.toString(AtomPayloadHandler.class
-				.getResourceAsStream("/atom_feed_with_single_entry.txt")));
+		handler.setPayload(AtomPayloadHandler.class
+				.getResourceAsStream("/atom_feed_with_single_entry.txt"));
 		List<Link> links = handler.links();
 		assertEquals(2, links.size());
 
@@ -116,8 +116,8 @@ public class AtomPayloadHandlerTest {
 
 	@Test
 	public void testGetLinksForEntity() throws Exception {
-		handler.setPayload(IOUtils.toString(AtomPayloadHandler.class
-				.getResourceAsStream("/atom_entry_with_xml_content.txt")));
+		handler.setPayload(AtomPayloadHandler.class
+				.getResourceAsStream("/atom_entry_with_xml_content.txt"));
 		List<Link> links = handler.links();
 		assertEquals(4, links.size());
 
@@ -156,11 +156,10 @@ public class AtomPayloadHandlerTest {
 
 	@Test
 	public void testEntities() throws Exception {
-		handler.setPayload(IOUtils.toString(AtomPayloadHandler.class
-				.getResourceAsStream("/atom_feed_with_single_entry.txt")));
+		handler.setPayload(AtomPayloadHandler.class
+				.getResourceAsStream("/atom_feed_with_single_entry.txt"));
 		List<EntityWrapper> entities = handler.entities();
 		assertEquals(1, entities.size());
-		Entity entity = entities.get(0);
-//		assertEquals(4, entity.links().all().size());
+		assertNotNull(entities.get(0));
 	}
 }

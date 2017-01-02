@@ -33,6 +33,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -67,7 +68,8 @@ public class UrlWrapperTest {
 				.thenReturn(mockResponse);
 		when(mockResponse.headers()).thenReturn(mockHeader);
 		when(mockHeader.get("Content-Type")).thenReturn("text/plain");
-		when(mockResponse.payload()).thenReturn("plain text payload");
+		when(mockResponse.payload()).thenReturn(
+				IOUtils.toInputStream("plain text payload"));
 		UrlWrapper wrapper = new UrlWrapper(mockSessionContext);
 		wrapper.baseuri("foo");
 		wrapper.get();
@@ -81,7 +83,8 @@ public class UrlWrapperTest {
 				.thenReturn(mockResponse);
 		when(mockResponse.headers()).thenReturn(mockHeader);
 		when(mockHeader.get("Content-Type")).thenReturn("text/plain");
-		when(mockResponse.payload()).thenReturn("plain text payload");
+		when(mockResponse.payload()).thenReturn(
+				IOUtils.toInputStream("plain text payload"));
 		UrlWrapper wrapper = new UrlWrapper(mockSessionContext);
 		wrapper.baseuri("foo");
 		wrapper.path("bar()");
@@ -96,7 +99,8 @@ public class UrlWrapperTest {
 				.thenReturn(mockResponse);
 		when(mockResponse.headers()).thenReturn(mockHeader);
 		when(mockHeader.get("Content-Type")).thenReturn("text/plain");
-		when(mockResponse.payload()).thenReturn("plain text payload");
+		when(mockResponse.payload()).thenReturn(
+				IOUtils.toInputStream("plain text payload"));
 		UrlWrapper wrapper = new UrlWrapper(mockSessionContext);
 		wrapper.baseuri("foo");
 		wrapper.path("bar()");
@@ -112,7 +116,8 @@ public class UrlWrapperTest {
 				.thenReturn(mockResponse);
 		when(mockResponse.headers()).thenReturn(mockHeader);
 		when(mockHeader.get("Content-Type")).thenReturn("text/plain");
-		when(mockResponse.payload()).thenReturn("plain text payload");
+		when(mockResponse.payload()).thenReturn(
+				IOUtils.toInputStream("plain text payload"));
 		UrlWrapper wrapper = new UrlWrapper("foo/bar('x')", mockSessionContext);
 		wrapper.noPayload();
 		wrapper.post();
@@ -126,7 +131,8 @@ public class UrlWrapperTest {
 				.thenReturn(mockResponse);
 		when(mockResponse.headers()).thenReturn(mockHeader);
 		when(mockHeader.get("Content-Type")).thenReturn("text/plain");
-		when(mockResponse.payload()).thenReturn("plain text payload");
+		when(mockResponse.payload()).thenReturn(
+				IOUtils.toInputStream("plain text payload"));
 		UrlWrapper wrapper = new UrlWrapper("foo/bar()", mockSessionContext);
 		wrapper.get();
 		verify(mockHttpClient, times(1)).get(eq("foo/bar()"),
@@ -139,7 +145,8 @@ public class UrlWrapperTest {
 				.thenReturn(mockResponse);
 		when(mockResponse.headers()).thenReturn(mockHeader);
 		when(mockHeader.get("Content-Type")).thenReturn("text/plain");
-		when(mockResponse.payload()).thenReturn("plain text payload");
+		when(mockResponse.payload()).thenReturn(
+				IOUtils.toInputStream("plain text payload"));
 		UrlWrapper wrapper = new UrlWrapper("foo/bar('x')", mockSessionContext);
 		wrapper.noPayload();
 		wrapper.post();
@@ -153,7 +160,8 @@ public class UrlWrapperTest {
 				.thenReturn(mockResponse);
 		when(mockResponse.headers()).thenReturn(mockHeader);
 		when(mockHeader.get("Content-Type")).thenReturn("text/plain");
-		when(mockResponse.payload()).thenReturn("plain text payload");
+		when(mockResponse.payload()).thenReturn(
+				IOUtils.toInputStream("plain text payload"));
 		UrlWrapper wrapper = new UrlWrapper("foo/bar('y')", mockSessionContext);
 		wrapper.noPayload();
 		wrapper.put();

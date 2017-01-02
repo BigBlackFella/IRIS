@@ -123,12 +123,7 @@ public class HalJsonPayloadHandlerTest {
 
 	private void initPayloadHandler(String jsonFileName) {
 		payloadHandler = new HalJsonPayloadHandler();
-		try {
-			payloadHandler.setPayload(IOUtils
-					.toString(HalJsonPayloadHandlerTest.class
-							.getResourceAsStream(jsonFileName)));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+			payloadHandler.setPayload(HalJsonPayloadHandlerTest.class
+					.getResourceAsStream(jsonFileName));
 	}
 }

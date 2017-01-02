@@ -22,15 +22,17 @@ package com.temenos.useragent.generic.http;
  */
 
 
+import java.io.InputStream;
+
 import com.temenos.useragent.generic.Result;
 
 public class HttpResponseImpl implements HttpResponse {
 
 	private HttpHeader header;
-	private String payload;
+	private InputStream payload;
 	private Result result;
 
-	public HttpResponseImpl(HttpHeader header, String payload, Result result) {
+	public HttpResponseImpl(HttpHeader header, InputStream payload, Result result) {
 		this.header = header;
 		this.payload = payload;
 		this.result = result;
@@ -42,7 +44,7 @@ public class HttpResponseImpl implements HttpResponse {
 	}
 
 	@Override
-	public String payload() {
+	public InputStream payload() {
 		return payload;
 	}
 

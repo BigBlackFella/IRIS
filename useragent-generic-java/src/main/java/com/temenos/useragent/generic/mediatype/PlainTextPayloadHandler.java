@@ -21,8 +21,12 @@ package com.temenos.useragent.generic.mediatype;
  * #L%
  */
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.io.IOUtils;
 
 import com.temenos.useragent.generic.Link;
 import com.temenos.useragent.generic.PayloadHandler;
@@ -64,8 +68,12 @@ public class PlainTextPayloadHandler implements PayloadHandler {
 	}
 
 	@Override
-	public void setPayload(String payload) {
-		plainText = payload;
+	public void setPayload(InputStream payload) {
+		try {
+			plainText = IOUtils.toString(payload);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

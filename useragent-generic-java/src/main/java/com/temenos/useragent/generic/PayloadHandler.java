@@ -22,6 +22,7 @@ package com.temenos.useragent.generic;
  */
 
 
+import java.io.InputStream;
 import java.util.List;
 
 import com.temenos.useragent.generic.internal.EntityWrapper;
@@ -70,7 +71,7 @@ public interface PayloadHandler {
 	 * 
 	 * @param payload
 	 */
-	void setPayload(String payload);
+	void setPayload(InputStream payload);
 
 	/**
 	 * Sets any parameter part of the media type associated to this handler.

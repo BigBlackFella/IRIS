@@ -134,12 +134,12 @@ public class DefaultHttpClient implements HttpClient {
             InputStream contentStream = httpResponse.getEntity().getContent();
             response = new HttpResponseImpl(
                     DefaultHttpClientHelper.buildResponseHeaders(httpResponse),
-                    IOUtils.toString(contentStream, "UTF-8"),
+                    contentStream,
                     DefaultHttpClientHelper.buildResult(httpResponse));
         }else{ //e.g. HTTP 204
             response = new HttpResponseImpl(
                     DefaultHttpClientHelper.buildResponseHeaders(httpResponse),
-                    "",
+                    IOUtils.toInputStream(""),
                     DefaultHttpClientHelper.buildResult(httpResponse));
         }
         logHttpResponse(response);
@@ -162,13 +162,13 @@ public class DefaultHttpClient implements HttpClient {
 
     private void logHttpResponse(HttpResponse response) {
 	    if (logger.isInfoEnabled()) {
-	        String payload = response.payload();
-	        if (payload != null && !payload.isEmpty()) {
-	            logger.info("\nHEADERS: {}\nRESPONSE: {}", response.headers(),
-	                    DefaultHttpClientHelper.prettyPrintXml(payload));
-	        } else {
-	            logger.info("\nHEADERS: {}\nNO RESPONSE", response.headers() );
-	        }
+//	        String payload = IOUtils.toString(response.payload());
+//	        if (payload != null && !payload.isEmpty()) {
+//	            logger.info("\nHEADERS: {}\nRESPONSE: {}", response.headers(),
+//	                    DefaultHttpClientHelper.prettyPrintXml(payload));
+//	        } else {
+//	            logger.info("\nHEADERS: {}\nNO RESPONSE", response.headers() );
+//	        }
 	    }
 	}
 }

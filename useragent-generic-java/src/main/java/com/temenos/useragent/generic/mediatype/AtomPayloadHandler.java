@@ -21,6 +21,7 @@ package com.temenos.useragent.generic.mediatype;
  * #L%
  */
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,14 +85,13 @@ public class AtomPayloadHandler implements PayloadHandler {
 	}
 
 	@Override
-	public void setPayload(String payload) {
+	public void setPayload(InputStream payload) {
 		if (payload == null) {
 			throw new IllegalArgumentException("Payload is null");
 		}
 		Document<Element> payloadDoc = null;
 		try {
-			payloadDoc = new Abdera().getParser().parse(
-					IOUtils.toInputStream(payload));
+			payloadDoc = new Abdera().getParser().parse(payload);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(
 					"Unexpected payload for media type '" + AtomUtil.MEDIA_TYPE

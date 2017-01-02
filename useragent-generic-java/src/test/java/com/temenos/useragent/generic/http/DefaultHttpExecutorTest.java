@@ -64,8 +64,8 @@ public class DefaultHttpExecutorTest {
 		when(mockHeader.get("Content-Type")).thenReturn("application/atom+xml");
 		when(mockResponse.payload())
 				.thenReturn(
-						IOUtils.toString(DefaultHttpExecutorTest.class
-								.getResourceAsStream("/atom_feed_with_single_entry.txt")));
+						DefaultHttpExecutorTest.class
+								.getResourceAsStream("/atom_feed_with_single_entry.txt"));
 		DefaultHttpExecutor executor = new DefaultHttpExecutor(mockHttpClient,
 				"http://myserver:8080/myservice/Test.svc", mockRequestData);
 		ResponseData responseData = executor.execute(HttpMethod.GET);
@@ -84,8 +84,8 @@ public class DefaultHttpExecutorTest {
 		when(mockHeader.get("Content-Type")).thenReturn("application/atom+xml");
 		when(mockResponse.payload())
 				.thenReturn(
-						IOUtils.toString(DefaultHttpExecutorTest.class
-								.getResourceAsStream("/atom_entry_with_xml_content.txt")));
+						DefaultHttpExecutorTest.class
+								.getResourceAsStream("/atom_entry_with_xml_content.txt"));
 		DefaultHttpExecutor executor = new DefaultHttpExecutor(mockHttpClient,
 				"http://myserver:8080/myservice/Test.svc", mockRequestData);
 		ResponseData responseData = executor.execute(HttpMethod.POST);
@@ -97,12 +97,13 @@ public class DefaultHttpExecutorTest {
 	}
 
 	@Test
-	public void testExecuteForPut() {
+	public void testExecuteForPut() throws IOException {
 		when(mockHttpClient.put(anyString(), any(HttpRequest.class)))
 				.thenReturn(mockResponse);
 		when(mockResponse.headers()).thenReturn(mockHeader);
 		when(mockHeader.get("Content-Type")).thenReturn("text/plain");
-		when(mockResponse.payload()).thenReturn("plain text payload");
+		when(mockResponse.payload()).thenReturn(
+				IOUtils.toInputStream("plain text payload", "UTF-8"));
 		DefaultHttpExecutor executor = new DefaultHttpExecutor(mockHttpClient,
 				"http://myserver:8080/myservice/Test.svc", mockRequestData);
 		ResponseData responseData = executor.execute(HttpMethod.PUT);
@@ -117,10 +118,10 @@ public class DefaultHttpExecutorTest {
                 .thenReturn(mockResponse);
         when(mockResponse.headers()).thenReturn(mockHeader);
         when(mockHeader.get("Content-Type")).thenReturn("application/atom+xml");
-        when(mockResponse.payload())
-                .thenReturn(
-                        IOUtils.toString(DefaultHttpExecutorTest.class
-                                .getResourceAsStream("/atom_feed_with_single_entry.txt")));
+		when(mockResponse.payload())
+				.thenReturn(
+						DefaultHttpExecutorTest.class
+								.getResourceAsStream("/atom_feed_with_single_entry.txt"));
         DefaultHttpExecutor executor = new DefaultHttpExecutor(mockHttpClient,
                 "http://myserver:8080/myservice/Test.svc", mockRequestData);
         ResponseData responseData = executor.execute(HttpMethod.DELETE);

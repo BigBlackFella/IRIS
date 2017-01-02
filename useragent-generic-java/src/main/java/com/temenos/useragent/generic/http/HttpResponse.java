@@ -22,6 +22,8 @@ package com.temenos.useragent.generic.http;
  */
 
 
+import java.io.InputStream;
+
 import com.temenos.useragent.generic.Result;
 
 public interface HttpResponse {
@@ -30,5 +32,5 @@ public interface HttpResponse {
 
 	HttpHeader headers();
 
-	String payload();
+	InputStream payload();
 }

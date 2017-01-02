@@ -22,11 +22,17 @@ package com.temenos.useragent.generic.internal;
  */
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import com.temenos.useragent.generic.Link;
@@ -53,17 +59,17 @@ public class PayloadHandlerFactoryTest {
 	}
 
 	@Test
-	public void testCreateHandler() {
+	public void testCreateHandler() throws Exception {
 		PayloadHandlerFactory factory = PayloadHandlerFactory
 				.createFactory(MockPayloadHandler.class);
 		MockPayloadHandler handler = (MockPayloadHandler) factory
-				.createHandler("Test payload");
+				.createHandler(IOUtils.toInputStream("Test payload","UTF-8"));
 		assertEquals("Test payload", handler.getPayload());
 	}
 
 	public static class MockPayloadHandler implements PayloadHandler {
 
-		private String payload;
+		private InputStream payload;
 
 		@Override
 		public boolean isCollection() {
@@ -86,7 +92,7 @@ public class PayloadHandlerFactoryTest {
 		}
 
 		@Override
-		public void setPayload(String payload) {
+		public void setPayload(InputStream payload) {
 			this.payload = payload;
 		}
 
@@ -94,8 +100,8 @@ public class PayloadHandlerFactoryTest {
 		public void setParameter(String parameter) {
 		}
 
-		public String getPayload() {
-			return payload;
+		public String getPayload() throws IOException {
+			return IOUtils.toString(payload);
 		}
 	}
 }

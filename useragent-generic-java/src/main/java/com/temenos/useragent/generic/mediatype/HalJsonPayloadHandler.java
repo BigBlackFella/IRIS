@@ -22,6 +22,7 @@ package com.temenos.useragent.generic.mediatype;
  */
 
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,13 +92,13 @@ public class HalJsonPayloadHandler implements PayloadHandler {
 	}
 
 	@Override
-	public void setPayload(String payload) {
+	public void setPayload(InputStream payload) {
 		if (payload == null) {
 			throw new IllegalArgumentException("Payload is null");
 		}
 		ReadableRepresentation jsonRepresentation = representationFactory
 				.readRepresentation(RepresentationFactory.HAL_JSON,
-						new InputStreamReader(IOUtils.toInputStream(payload)));
+						new InputStreamReader(payload));
 		representation = jsonRepresentation;
 	}
 

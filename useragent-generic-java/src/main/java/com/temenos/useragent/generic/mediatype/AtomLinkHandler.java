@@ -26,6 +26,7 @@ import static com.temenos.useragent.generic.mediatype.AtomUtil.NS_ODATA_METADATA
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
@@ -33,6 +34,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.abdera.model.Element;
 import org.apache.abdera.model.Link;
+import org.apache.commons.io.IOUtils;
 
 import com.temenos.useragent.generic.PayloadHandler;
 import com.temenos.useragent.generic.context.ContextFactory;
@@ -99,7 +101,7 @@ public class AtomLinkHandler {
 		}
 		Element feedElement = inlineElement.getFirstChild(new QName(NS_ATOM,
 				"feed"));
-		String content = "";
+		InputStream content = null;
 		if (feedElement != null) {
 			content = getContent(feedElement);
 		} else {
@@ -125,11 +127,11 @@ public class AtomLinkHandler {
 		embeddedPayload = wrapper;
 	}
 
-	private String getContent(Element element) {
+	private InputStream getContent(Element element) {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			element.writeTo(baos);
-			return baos.toString("UTF-8");
+			return IOUtils.toInputStream(baos.toString("UTF-8"), "UTF-8");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
