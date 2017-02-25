@@ -21,11 +21,14 @@ package com.temenos.interaction.core.rim;
  * #L%
  */
 
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.temenos.interaction.core.hypermedia.Link;
 import com.temenos.interaction.core.hypermedia.ResourceState;
+import com.temenos.interaction.core.resource.RESTResource;
+
 
 /**
  * Wraps an internal IRIS Response object with a link to the resolved location
@@ -40,7 +43,7 @@ public final class ResponseWrapper {
     private final MultivaluedMap<String, String> requestParameters;
     private final ResourceState resolvedState;
     
-    public ResponseWrapper(Response response, Link selfLink, 
+    public ResponseWrapper(Response response, Link selfLink,
             MultivaluedMap<String, String> requestParameters, ResourceState resolvedState) {
         this.response = response;
         this.selfLink = selfLink;
@@ -79,5 +82,16 @@ public final class ResponseWrapper {
      */
     public ResourceState getResolvedState(){
         return resolvedState;
+    }
+
+    /**
+     * Obtain the REST resource object of the response object stored in this wrapper.
+     * @return The REST resource object of the response object stored in this wrapper.
+     */
+    public RESTResource getRESTResource() {
+        if (response.getEntity() == null) {
+            return null;
+        }
+        return (RESTResource) ((GenericEntity<?>) response.getEntity()).getEntity();
     }
 }

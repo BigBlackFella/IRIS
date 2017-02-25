@@ -76,15 +76,20 @@ public class SequentialResourceRequestHandler implements ResourceRequestHandler 
 			MultivaluedMap<String, String> newPathParameters = new MultivaluedMapImpl<String>();
 			newPathParameters.putAll(ctx.getPathParameters());
 			
-			if (resource != null) {
-				Map<String,Object> transitionProperties = hypermediaEngine.getTransitionProperties(t, ((EntityResource<?>)resource).getEntity(), ctx.getPathParameters(), ctx.getQueryParameters());
-				
-				for (String key : transitionProperties.keySet()) {
-					if (transitionProperties.get(key) != null) {
-						newPathParameters.add(key, transitionProperties.get(key).toString());
-					}
-				}				
-			}
+            Object resEntity = entity;
+            if (resource != null) {
+                resEntity = ((EntityResource<?>) resource).getEntity();
+            }
+
+            Map<String, Object> transitionProperties = hypermediaEngine.getTransitionProperties(t, resEntity,
+                    ctx.getPathParameters(), ctx.getQueryParameters());
+
+            for (String key : transitionProperties.keySet()) {
+                if (transitionProperties.get(key) != null) {
+                    newPathParameters.add(key, transitionProperties.get(key).toString());
+                }
+            }			
+			
 
 			MultivaluedMap<String, String> newQueryParameters = new MultivaluedMapImpl<String>();
 			newQueryParameters.putAll(ctx.getQueryParameters());
@@ -93,12 +98,13 @@ public class SequentialResourceRequestHandler implements ResourceRequestHandler 
 				/* Handle cases where we may be embedding a resource that has filter criteria whose values are contained in the current resource's 
 				 * entity properties.				
 				 */				
-				Map<String,Object> transitionProperties = hypermediaEngine.getTransitionProperties(t, entity, ctx.getPathParameters(), ctx.getQueryParameters());
+                Map<String, Object> transitionPropertiesFilter = hypermediaEngine.getTransitionProperties(t, entity,
+                        ctx.getPathParameters(), ctx.getQueryParameters());
 				
-				for (String key : transitionProperties.keySet()) {
-					if (transitionProperties.get(key) != null) {
-						newQueryParameters.add(key, transitionProperties.get(key).toString());
-					}
+                for (String key : transitionPropertiesFilter.keySet()) {
+                    if (transitionPropertiesFilter.get(key) != null) {
+                        newQueryParameters.add(key, transitionPropertiesFilter.get(key).toString());
+                    }
 				}
 			}
 			

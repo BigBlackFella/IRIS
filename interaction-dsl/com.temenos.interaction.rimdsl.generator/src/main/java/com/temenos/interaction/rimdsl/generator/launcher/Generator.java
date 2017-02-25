@@ -44,6 +44,8 @@ import org.eclipse.xtext.validation.CheckMode;
 import org.eclipse.xtext.validation.IResourceValidator;
 import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
@@ -57,6 +59,7 @@ import com.temenos.interaction.rimdsl.rim.State;
  *
  */
 public class Generator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Generator.class);
 	
 	@Inject
     private XtextResourceSet resourceSet;
@@ -187,7 +190,7 @@ public class Generator {
                             entitiesMap.put(entity, entityPropMap);
                         }                        
                     } catch (Exception e) {
-                        System.out.println("Entity Not found: " + entity);
+                        LOGGER.error("Entity Not found: " + entity, e);
                     }
                 }
 		    }

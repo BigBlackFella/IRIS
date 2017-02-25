@@ -21,11 +21,14 @@ package com.temenos.interaction.core.rim;
  * #L%
  */
 
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -42,8 +45,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
@@ -72,7 +77,9 @@ import com.temenos.interaction.core.entity.EntityMetadata;
 import com.temenos.interaction.core.entity.Metadata;
 import com.temenos.interaction.core.hypermedia.Action;
 import com.temenos.interaction.core.hypermedia.BeanTransformer;
+import com.temenos.interaction.core.hypermedia.ParameterAndValue;
 import com.temenos.interaction.core.hypermedia.ResourceState;
+import com.temenos.interaction.core.hypermedia.ResourceStateAndParameters;
 import com.temenos.interaction.core.hypermedia.ResourceStateMachine;
 import com.temenos.interaction.core.hypermedia.Transition;
 import com.temenos.interaction.core.resource.EntityResource;
@@ -255,6 +262,51 @@ public class TestHTTPHypermediaRIM {
         rim.get(mock(HttpHeaders.class), "id", uriInfo);
         verify(mockCommand).execute((InteractionContext) argThat(new InteractionContextArgumentPathMatcherPercent()));
     }
+    
+    @Test
+    public void testExtractDecodedUriSegments() throws InteractionException {
+        ResourceState initialState = new ResourceState("entity", "state", mockActions(), "/test");
+        InteractionCommand mockCommand = mock(InteractionCommand.class);
+        when(mockCommand.execute(any(InteractionContext.class))).thenReturn(Result.FAILURE);
+        HTTPHypermediaRIM rim = new HTTPHypermediaRIM(mockCommandController(mockCommand), new ResourceStateMachine(
+                initialState), createMockMetadata());
+
+        UriInfo uriInfo = mock(UriInfo.class);
+        when(uriInfo.getPath(anyBoolean())).thenReturn("notes/id('id%2FwithSlash')/view");
+        String[] expectedResultArray = new String[]{"notes", "id('id/withSlash')", "view"};
+        
+        String[] resultArray =  rim.extractDecodedUriSegments(uriInfo);
+        assertEquals(3, resultArray.length);
+        assertArrayEquals(expectedResultArray, resultArray);
+    }
+    
+    /*
+     * testing method extractDecodedUriSegment with null and empty input
+     * 
+     * 
+     */
+    @Test
+    public void testExtractDecodedUriSegmentsWithNullAndEmptyInput() throws InteractionException {
+        ResourceState initialState = new ResourceState("entity", "state", mockActions(), "/test");
+        InteractionCommand mockCommand = mock(InteractionCommand.class);
+        when(mockCommand.execute(any(InteractionContext.class))).thenReturn(Result.FAILURE);
+        HTTPHypermediaRIM rim = new HTTPHypermediaRIM(mockCommandController(mockCommand), new ResourceStateMachine(
+                initialState), createMockMetadata());
+        String[] resultArray =  rim.extractDecodedUriSegments(null);
+        if(resultArray.length != 0) {
+            fail("When passing null input method extractDecodedUriSegments return some invalid result");
+        }
+        //Empty input String test 
+        UriInfo uriInfo = mock(UriInfo.class);
+        when(uriInfo.getPath(anyBoolean())).thenReturn("");
+        
+        String[] resultArrayforEmptyPath =  rim.extractDecodedUriSegments(uriInfo);
+        if(resultArrayforEmptyPath.length != 0) {
+            fail("When passing empty input method extractDecodedUriSegments return some invalid result");
+        }
+    }
+    
+    
 
     class InteractionContextArgumentPathMatcherPercent extends ArgumentMatcher<InteractionContext> {
         public boolean matches(Object o) {
@@ -1018,12 +1070,102 @@ public class TestHTTPHypermediaRIM {
         verify(rim, times(1)).setLocationHeader(any(ResponseBuilder.class), eq("http://localhost/myservice.svc/test_unsafe"), any(MultivaluedMap.class));
     }
 
+    @Test
+    public void testFilterParameters() {
+        HTTPHypermediaRIM rim = new HTTPHypermediaRIM(mock(CommandController.class), mockResourceStateMachine(), createMockMetadata());
+        MultivaluedMap<String, String> params = new MultivaluedMapImpl<>();
+        params.putSingle("k1", "v1");
+        params.putSingle("k2", "v2");
+        params.putSingle("k3", "v3");
+        params.putSingle("k4", "v4");
+        Set<String> filters = new HashSet<>();
+        filters.add("k2");
+        filters.add("k4");
+
+        MultivaluedMap<String, String> results = rim.filterParameters(params, filters);
+
+        assertEquals(2, results.size());
+        assertEquals(1, results.get("k2").size());
+        assertEquals(1, results.get("k4").size());
+        assertEquals("v2", results.get("k2").get(0));
+        assertEquals("v4", results.get("k4").get(0));
+    }
+
+    @Test
+    public void testGetStateParameters() {
+        HTTPHypermediaRIM rim = new HTTPHypermediaRIM(mock(CommandController.class), mockResourceStateMachine(), createMockMetadata());
+        ResourceStateAndParameters stateAndParams = new ResourceStateAndParameters();
+        stateAndParams.setParams(new ParameterAndValue[] {new ParameterAndValue("k1", "v1"), new ParameterAndValue("k2", "v2")});
+
+        MultivaluedMap<String, String> results = rim.getStateParameters(stateAndParams);
+
+        assertEquals(2, results.size());
+        assertEquals(1, results.get("k1").size());
+        assertEquals(1, results.get("k2").size());
+        assertEquals("v1", results.get("k1").get(0));
+        assertEquals("v2", results.get("k2").get(0));
+    }
+
+    @Test
+    public void testBuildPathParameters() {
+        Map<String, Object> transitionProperties = new HashMap<>();
+        transitionProperties.put("tpk1", "tpv1");
+        transitionProperties.put("tpk2", "tpv2");
+        HTTPHypermediaRIM rim = new HTTPHypermediaRIM(mock(CommandController.class), mockResourceStateMachine(transitionProperties), createMockMetadata());
+        MultivaluedMap<String, String> pathParameters = new MultivaluedMapImpl<>();
+        pathParameters.putSingle("pk1", "pv1");
+        InteractionContext ctxMock = mockInteractionContext(pathParameters, null);
+
+        MultivaluedMap<String, String> results = rim.buildPathParameters(mock(Transition.class), ctxMock);
+
+        assertEquals(3, results.size());
+        assertEquals(1, results.get("tpk1").size());
+        assertEquals(1, results.get("tpk2").size());
+        assertEquals(1, results.get("pk1").size());
+        assertEquals("tpv1", results.get("tpk1").get(0));
+        assertEquals("tpv2", results.get("tpk2").get(0));
+        assertEquals("pv1", results.get("pk1").get(0));
+    }
+
+    @Test
+    public void testCopyParameters() {
+        HTTPHypermediaRIM rim = new HTTPHypermediaRIM(mock(CommandController.class), mockResourceStateMachine(), createMockMetadata());
+        MultivaluedMap<String, String> pathParameters = new MultivaluedMapImpl<>();
+        pathParameters.putSingle("pk1", "pv1");
+
+        MultivaluedMap<String, String> results = rim.copyParameters(pathParameters);
+
+        assertEquals(1, results.size());
+        assertEquals(1, results.get("pk1").size());
+        assertEquals("pv1", results.get("pk1").get(0));
+        assertTrue(results != pathParameters);
+    }
+
     @SuppressWarnings({ "unchecked" })
     private UriInfo mockEmptyUriInfo() {
         UriInfo uriInfo = mock(UriInfo.class);
         when(uriInfo.getPathParameters(anyBoolean())).thenReturn(mock(MultivaluedMap.class));
         when(uriInfo.getQueryParameters(false)).thenReturn(mock(MultivaluedMap.class));
         return uriInfo;
+    }
+
+    private InteractionContext mockInteractionContext(MultivaluedMap<String, String> pathParameters, MultivaluedMap<String, String> queryParameters) {
+        InteractionContext ctxMock = mock(InteractionContext.class);
+        when(ctxMock.getPathParameters()).thenReturn(pathParameters);
+        when(ctxMock.getQueryParameters()).thenReturn(queryParameters);
+        when(ctxMock.getResource()).thenReturn(new EntityResource<>());
+        return ctxMock;
+    }
+
+    private ResourceStateMachine mockResourceStateMachine() {
+        return mockResourceStateMachine(new HashMap<String, Object>());
+    }
+
+    private ResourceStateMachine mockResourceStateMachine(Map<String, Object> transitionProperties) {
+        ResourceStateMachine resourceStateMachineMock = mock(ResourceStateMachine.class);
+        when(resourceStateMachineMock.getInitial()).thenReturn(new ResourceState("entity", "state", mockActions(), "/test"));
+        when(resourceStateMachineMock.getTransitionProperties(any(Transition.class), any(), any(MultivaluedMap.class), any(MultivaluedMap.class))).thenReturn(transitionProperties);
+        return resourceStateMachineMock;
     }
 
     private Metadata createMockMetadata() {

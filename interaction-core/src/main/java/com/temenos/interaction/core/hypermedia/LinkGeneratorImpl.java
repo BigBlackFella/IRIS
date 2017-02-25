@@ -168,7 +168,7 @@ public class LinkGeneratorImpl implements LinkGenerator {
                     try{
                         outQueryParams.add(param.getKey(), URLEncoder.encode(paramValue, "UTF-8"));
                     }catch(UnsupportedEncodingException uee){
-                        logger.error("Unable to encode {}={}.", param.getKey(), paramValue);
+                        logger.error("ERROR unable to encode " + param.getKey(), uee);
                     }
                 }
             }
@@ -290,7 +290,7 @@ public class LinkGeneratorImpl implements LinkGenerator {
         	}
         }
 
-        Map<String, Object> linkPropertiesMap = linkProperties.getTransitionProperties();
+        //Map<String, Object> linkPropertiesMap = linkProperties.getTransitionProperties();
         // We are NOT dealing with a dynamic target
         String targetPath = targetState.getPath();
         linkTemplate.path(targetPath);

@@ -43,7 +43,9 @@ public class MultivaluedMapImpl<T> extends HashMap<String, List<T>> implements
 	@Override
 	public void add(String key, T value) {
 		List<T> values = getList(key);
-		values.add(value);
+		if (!values.contains(value)) {
+			values.add(value);
+		}
 	}
 
 	@Override
