@@ -24,6 +24,7 @@ package com.temenos.interaction.core.hypermedia.transition;
 
 import com.temenos.interaction.core.hypermedia.Transformer;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +55,10 @@ public class EntityPropertiesGenerator implements PropertiesGenerator {
         if (entity != null && transformer != null) {
             properties = transformer.transform(entity);
         }
-        return properties;
+        if (properties != null) {
+            return properties;
+        } else {
+            return Collections.emptyMap();
+        }
     }
 }
