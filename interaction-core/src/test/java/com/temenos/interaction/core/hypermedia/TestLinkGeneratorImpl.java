@@ -21,8 +21,7 @@ package com.temenos.interaction.core.hypermedia;
  * #L%
  */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -147,7 +146,11 @@ public class TestLinkGeneratorImpl {
         LinkGenerator linkGenerator = new LinkGeneratorImpl(engine, t, ctx);
         Collection<Link> links = linkGenerator.createLink(null, null, null);
         assertFalse(links.isEmpty());
-        assertEquals("/baseuri/test?param1=delta&param2=beta&param3=gamma", links.iterator().next().getHref());
+        String actualHref = links.iterator().next().getHref();
+        assertTrue(actualHref.contains("/baseuri/test?"));
+        assertTrue(actualHref.contains("param1=delta"));
+        assertTrue(actualHref.contains("param2=beta"));
+        assertTrue(actualHref.contains("param3=gamma"));
     }
     
     @Test
@@ -164,7 +167,11 @@ public class TestLinkGeneratorImpl {
         LinkGenerator linkGenerator = new LinkGeneratorImpl(engine, t, ctx);
         Collection<Link> links = linkGenerator.createLink(null, null, null);
         assertFalse(links.isEmpty());
-        assertEquals("/baseuri/test?param1=alpha&param2=beta&param3=gamma", links.iterator().next().getHref());
+        String actualHref = links.iterator().next().getHref();
+        assertTrue(actualHref.contains("/baseuri/test?"));
+        assertTrue(actualHref.contains("param1=alpha"));
+        assertTrue(actualHref.contains("param2=beta"));
+        assertTrue(actualHref.contains("param3=gamma"));
     }
     
     @Test
@@ -181,7 +188,12 @@ public class TestLinkGeneratorImpl {
         LinkGenerator linkGenerator = new LinkGeneratorImpl(engine, t, ctx);
         Collection<Link> links = linkGenerator.createLink(null, null, null);
         assertFalse(links.isEmpty());
-        assertEquals("/baseuri/test?param1=alpha&param2=beta&param3=gamma", links.iterator().next().getHref());
+        String actualHref = links.iterator().next().getHref();
+        assertTrue(actualHref.contains("/baseuri/test?"));
+        assertTrue(actualHref.contains("param1=alpha"));
+        assertTrue(actualHref.contains("param2=beta"));
+        assertTrue(actualHref.contains("param3=gamma"));
+
     }
     
     @Test
@@ -198,7 +210,12 @@ public class TestLinkGeneratorImpl {
         LinkGenerator linkGenerator = new LinkGeneratorImpl(engine, t, ctx);
         Collection<Link> links = linkGenerator.createLink(null, null, null);
         assertFalse(links.isEmpty());
-        assertEquals("/baseuri/test?param1=a%401&param2=b%402&param3=c%403", links.iterator().next().getHref());
+        String actualHref = links.iterator().next().getHref();
+        assertTrue(actualHref.contains("/baseuri/test?"));
+        assertTrue(actualHref.contains("param1=a%401"));
+        assertTrue(actualHref.contains("param2=b%402"));
+        assertTrue(actualHref.contains("param3=c%403"));
+
     }
     
     @Test

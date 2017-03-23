@@ -1567,7 +1567,12 @@ public class TestAtomXMLProvider {
 	}
 
 	private ResourceState createMockResourceState(String name, String entityName, boolean isCollection) {
-		ResourceState state = mock(isCollection ? CollectionResourceState.class : ResourceState.class);
+		ResourceState state = null;
+		if (isCollection) {
+			state = mock(CollectionResourceState.class);
+		} else {
+			state = mock(ResourceState.class);
+		}
 		when(state.getName()).thenReturn(name);
 		when(state.getEntityName()).thenReturn(entityName);
 		when(state.getRel()).thenReturn(isCollection ? "collection" : "item");

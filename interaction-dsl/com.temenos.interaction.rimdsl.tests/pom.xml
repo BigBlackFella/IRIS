@@ -97,6 +97,13 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-compiler-plugin</artifactId>
+					<configuration>
+						<compilerArgument>-warn:+discouraged,forbidden</compilerArgument>
+					</configuration>
+				</plugin>			
 			<!--  Skip the deployment -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -126,8 +126,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<javadoc.aggregate>true</javadoc.aggregate>
 		<javadoc.exclude.patterns>com.temenos.interaction.core.*</javadoc.exclude.patterns>
-		<maven.compile.source>1.7</maven.compile.source>
-		<maven.compile.target>1.7</maven.compile.target>
+		<maven.compile.source>1.8</maven.compile.source>
+		<maven.compile.target>1.8</maven.compile.target>
 		<maven.compiler.plugin>3.3</maven.compiler.plugin>
 		<maven.eclipse.plugin>2.5.1</maven.eclipse.plugin>
 
@@ -208,6 +208,9 @@
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-javadoc-plugin</artifactId>
 							<version>2.8</version>
+							<configuration>
+							    <additionalparam>-Xdoclint:none</additionalparam>
+							</configuration>
 						</plugin>
 					</reportPlugins>
 				</configuration>
@@ -222,6 +225,9 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+			<configuration>
+			    <additionalparam>-Xdoclint:none</additionalparam>
+			</configuration>
                     </execution>
                 </executions>
             </plugin>
